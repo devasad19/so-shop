@@ -64,8 +64,16 @@ public function stockMovements()
 {
     return $this->hasMany(\App\Models\StockMovement::class);
 }
+public function shopProducts()
+{
+    return $this->hasMany(\App\Models\ShopProduct::class);
+}
 
-
+public function shopPurchases()
+{
+    return $this->hasMany(\App\Models\ShopPurchase::class);
+}
+ 
 
 
 

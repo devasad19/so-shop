@@ -9,23 +9,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('units', function (Blueprint $table) {
-            $table->id();
+Schema::create('units', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('short_name');
+    $table->boolean('status')->default(true);
+    $table->timestamps();
 
-            $table->foreignId('business_id')
-                ->constrained('businesses')
-                ->cascadeOnDelete();
-
-            $table->string('name');
-            $table->string('short_name', 20);
-
-            $table->boolean('status')->default(true);
-
-            $table->timestamps();
-
-            $table->unique(['business_id', 'name']);
-            $table->index(['business_id', 'status']);
-        });
+    $table->unique('name');
+});
     }
 
     public function down(): void

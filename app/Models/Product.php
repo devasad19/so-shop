@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
     protected $fillable = [
-        'business_id',
         'category_id',
         'unit_id',
         'name',
@@ -17,40 +14,25 @@ class Product extends Model
         'barcode',
         'image',
         'description',
-        'purchase_price',
-        'selling_price',
-        'current_stock',
-        'alert_quantity',
-        'track_stock',
         'status',
     ];
 
     protected $casts = [
-        'purchase_price' => 'decimal:2',
-        'selling_price' => 'decimal:2',
-        'current_stock' => 'decimal:3',
-        'alert_quantity' => 'decimal:3',
-        'track_stock' => 'boolean',
         'status' => 'boolean',
     ];
 
-    public function business(): BelongsTo
-    {
-        return $this->belongsTo(Business::class);
-    }
-
-    public function category(): BelongsTo
+    public function category()
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 
-    public function unit(): BelongsTo
+    public function unit()
     {
         return $this->belongsTo(Unit::class);
     }
 
-    public function stockMovements(): HasMany
+    public function shopProducts()
     {
-        return $this->hasMany(StockMovement::class);
+        return $this->hasMany(ShopProduct::class);
     }
 }

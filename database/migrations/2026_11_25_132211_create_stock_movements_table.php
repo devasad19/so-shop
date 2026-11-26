@@ -9,60 +9,51 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('stock_movements', function (Blueprint $table) {
-            $table->id();
+ Schema::create('stock_movements', function (Blueprint $table) {
+    $table->id();
 
-            $table->foreignId('business_id')
-                ->constrained('businesses')
-                ->cascadeOnDelete();
+    $table->foreignId('business_id')
+        ->constrained('businesses')
+        ->cascadeOnDelete();
 
-            $table->foreignId('product_id')
-                ->constrained('products')
-                ->restrictOnDelete();
+    $table->foreignId('shop_product_id')
+        ->constrained('shop_products')
+        ->restrictOnDelete();
 
-            $table->enum('type', [
-                'opening',
-                'purchase',
-                'sale',
-                'sale_return',
-                'purchase_return',
-                'adjustment',
-            ]);
+    $table->enum('type', [
+        'opening',
+        'purchase',
+        'sale',
+        'sale_return',
+        'purchase_return',
+        'adjustment',
+    ]);
 
-            $table->enum('direction', [
-                'in',
-                'out',
-            ]);
+    $table->enum('direction', ['in', 'out']);
 
-            $table->decimal('quantity', 18, 3);
+    $table->decimal('quantity', 18, 3);
+    $table->decimal('unit_cost', 15, 2)->default(0);
 
-            $table->decimal('unit_cost', 15, 2)
-                ->default(0);
+    $table->decimal('stock_before', 18, 3)->default(0);
+    $table->decimal('stock_after', 18, 3)->default(0);
 
-            $table->decimal('stock_before', 18, 3)
-                ->default(0);
+    $table->string('reference_type')->nullable();
+    $table->unsignedBigInteger('reference_id')->nullable();
 
-            $table->decimal('stock_after', 18, 3)
-                ->default(0);
+    $table->text('note')->nullable();
 
-            $table->string('reference_type')->nullable();
+    $table->foreignId('created_by')
+        ->nullable()
+        ->constrained('users')
+        ->nullOnDelete();
 
-            $table->unsignedBigInteger('reference_id')->nullable();
+    $table->timestamps();
 
-            $table->text('note')->nullable();
-
-            $table->foreignId('created_by')
-                ->nullable()
-                ->constrained('users')
-                ->nullOnDelete();
-
-            $table->timestamps();
-
-            $table->index(['business_id', 'product_id']);
-            $table->index(['business_id', 'type']);
-            $table->index(['reference_type', 'reference_id']);
-            $table->index(['business_id', 'created_at']);
-        });
+    $table->index(['business_id', 'shop_product_id']);
+    $table->index(['business_id', 'type']);
+    $table->index(['reference_type', 'reference_id']);
+    $table->index(['business_id', 'created_at']);
+});
     }
 
     public function down(): void

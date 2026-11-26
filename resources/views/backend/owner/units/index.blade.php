@@ -2,6 +2,7 @@
 @extends('apps.shop_master')
 
 @section('title', 'Unit - OS Shop')
+@section('page_heading', 'Unit ব্যবস্থাপনা')
 
 @section('content')
 

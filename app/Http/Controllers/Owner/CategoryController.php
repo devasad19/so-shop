@@ -3,31 +3,15 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use App\Models\BusinessUser;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    private function businessId()
-    {
-        $membership = BusinessUser::where('user_id', Auth::id())
-            ->where('role', 'owner')
-            ->where('status', 'active')
-            ->first();
-
-        abort_unless($membership, 403);
-
-        return $membership->business_id;
-    }
-
     public function index(Request $request)
     {
-        $businessId = $this->businessId();
-
-        $categories = ProductCategory::where('business_id', $businessId)
-            ->withCount('products')
+        $categories = ProductCategory::withCount('products')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', '%' . $search . '%');
             })
@@ -40,18 +24,17 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        $businessId = $this->businessId();
-
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', 'unique:product_categories,name'],
             'description' => ['nullable', 'string'],
         ], [
             'name.required' => 'ক্যাটাগরির নাম লিখুন।',
+            'name.unique' => 'এই ক্যাটাগরিটি ইতিমধ্যে আছে।',
         ]);
 
         ProductCategory::create([
-            'business_id' => $businessId,
             'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']) ?: uniqid('category-'),
             'description' => $validated['description'] ?? null,
             'status' => true,
         ]);
@@ -62,14 +45,24 @@ class CategoryController extends Controller
 
     public function update(Request $request, ProductCategory $category)
     {
-        abort_unless($category->business_id == $this->businessId(), 404);
-
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:product_categories,name,' . $category->id,
+            ],
             'description' => ['nullable', 'string'],
+        ], [
+            'name.required' => 'ক্যাটাগরির নাম লিখুন।',
+            'name.unique' => 'এই ক্যাটাগরিটি ইতিমধ্যে আছে।',
         ]);
 
-        $category->update($validated);
+        $category->update([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']) ?: uniqid('category-'),
+            'description' => $validated['description'] ?? null,
+        ]);
 
         return redirect()->route('owner.categories.index')
             ->with('success', 'ক্যাটাগরি আপডেট করা হয়েছে।');
@@ -77,10 +70,11 @@ class CategoryController extends Controller
 
     public function destroy(ProductCategory $category)
     {
-        abort_unless($category->business_id == $this->businessId(), 404);
-
         if ($category->products()->exists()) {
-            return back()->with('error', 'এই ক্যাটাগরিতে পণ্য আছে। তাই ক্যাটাগরিটি মুছে ফেলা যাবে না।');
+            return back()->with(
+                'error',
+                'এই ক্যাটাগরিতে পণ্য আছে। তাই ক্যাটাগরিটি মুছে ফেলা যাবে না।'
+            );
         }
 
         $category->delete();

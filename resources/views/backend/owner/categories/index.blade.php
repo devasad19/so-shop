@@ -2,6 +2,7 @@
 @extends('apps.shop_master')
 
 @section('title', 'ক্যাটাগরি - OS Shop')
+@section('page_heading', 'ক্যাটাগরি ব্যবস্থাপনা')
 
 @section('content')
 

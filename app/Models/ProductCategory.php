@@ -3,29 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductCategory extends Model
 {
     protected $fillable = [
-        'business_id',
         'name',
         'slug',
         'description',
         'status',
     ];
 
-    protected $casts = [
-        'status' => 'boolean',
-    ];
-
-    public function business(): BelongsTo
-    {
-        return $this->belongsTo(Business::class);
-    }
-
-    public function products(): HasMany
+    public function products()
     {
         return $this->hasMany(Product::class, 'category_id');
     }

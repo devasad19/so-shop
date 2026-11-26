@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StockMovement extends Model
 {
     protected $fillable = [
         'business_id',
-        'product_id',
+        'shop_product_id',
         'type',
         'direction',
         'quantity',
@@ -29,17 +28,17 @@ class StockMovement extends Model
         'stock_after' => 'decimal:3',
     ];
 
-    public function business(): BelongsTo
+    public function shopProduct()
+    {
+        return $this->belongsTo(ShopProduct::class);
+    }
+
+    public function business()
     {
         return $this->belongsTo(Business::class);
     }
 
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function creator(): BelongsTo
+    public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }

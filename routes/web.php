@@ -7,6 +7,11 @@ use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\Owner\CategoryController;
 use App\Http\Controllers\Owner\UnitController;
 use App\Http\Controllers\Owner\StockMovementController;
+use App\Http\Controllers\Owner\ShopProductController;
+use App\Http\Controllers\Owner\ShopPurchaseController;
+use App\Http\Controllers\Owner\SaleController;
+
+
 
 
 Route::get('/', function () {
@@ -71,7 +76,29 @@ Route::get('/stock-movements', [StockMovementController::class, 'index'])
 Route::post('/stock-movements/adjustment', [StockMovementController::class, 'storeAdjustment'])
     ->name('owner.stock-movements.adjustment');
 // ======================
+// Global Product Catalog
+Route::get('/product-catalog', [ShopProductController::class, 'catalog'])
+    ->name('owner.shop-products.catalog');
 
+Route::post('/product-catalog/claim', [ShopProductController::class, 'claim'])
+    ->name('owner.shop-products.claim');
+
+// Shop Products
+Route::get('/shop-products', [ShopProductController::class, 'index'])
+    ->name('owner.shop-products.index');
+
+Route::get('/shop-products/{shopProduct}', [ShopProductController::class, 'show'])
+    ->name('owner.shop-products.show');
+
+Route::delete('/shop-products/{shopProduct}', [ShopProductController::class, 'destroy'])
+    ->name('owner.shop-products.destroy');
+
+// Purchase
+Route::get('/shop-products/{shopProduct}/purchase', [ShopPurchaseController::class, 'create'])
+    ->name('owner.shop-products.purchase');
+
+Route::post('/shop-products/{shopProduct}/purchase', [ShopPurchaseController::class, 'store'])
+    ->name('owner.shop-products.purchase.store');
 
 // ======================
 
@@ -102,3 +129,38 @@ Route::post('/stock-movements/adjustment', [StockMovementController::class, 'sto
 
 
 });
+
+
+Route::middleware('auth')->prefix('owner')->name('owner.')->group(function () {
+
+    Route::prefix('sales')->name('sales.')->controller(SaleController::class)->group(function () {
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+
+        Route::get('/', 'index')->name('index');
+
+        Route::get('/{sale}/invoice', 'invoice')->name('invoice');
+        Route::get('/{sale}', 'show')->name('show');
+    });
+
+
+        Route::prefix('purchases')
+            ->name('purchases.')
+            ->controller(ShopPurchaseController::class)
+            ->group(function () {
+
+                Route::get('/', 'index')->name('index');
+
+                Route::get('/create', 'create')->name('create');
+
+                Route::post('/', 'store')->name('store');
+
+                Route::get('/{purchase}', 'show')->name('show');
+            });
+
+
+
+});
+
+
+
